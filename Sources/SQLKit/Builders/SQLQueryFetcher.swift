@@ -28,15 +28,49 @@ extension SQLQueryFetcher {
         return self.all().map { $0.first }
     }
     
-    // MARK: All
-
-
+    /// Collects all decoded output into an array and returns it.
+    ///
+    ///     builder.all(decoding: Planet.self)
+    ///
     public func all<D>(decoding: D.Type) -> EventLoopFuture<[D]>
         where D: Decodable
     {
         self.all().flatMapThrowing {
             try $0.map {
                 try $0.decode(model: D.self)
+            }
+        }
+    }
+    
+    /// Decodes two types from the result set. Collects all decoded output into an array and returns it.
+    ///
+    ///     builder.all(decoding: Planet.self, Galaxy.self)
+    ///
+    public func all<A, B>(decoding: A.Type, _ b: B.Type) -> EventLoopFuture<[(A, B)]>
+        where A: Decodable, B: Decodable
+    {
+        self.all().flatMapThrowing {
+            try $0.map {
+                let a = try $0.decode(model: A.self)
+                let b = try $0.decode(model: B.self)
+                return (a, b)
+            }
+        }
+    }
+    
+    /// Decodes three types from the result set. Collects all decoded output into an array and returns it.
+    ///
+    ///     builder.all(decoding: Planet.self, Galaxy.self, SolarSystem.self)
+    ///
+    public func all<A, B, C>(decoding: A.Type, _ b: B.Type, _ c: C.Type) -> EventLoopFuture<[(A, B, C)]>
+        where A: Decodable, B: Decodable, C: Decodable
+    {
+        self.all().flatMapThrowing {
+            try $0.map {
+                let a = try $0.decode(model: A.self)
+                let b = try $0.decode(model: B.self)
+                let c = try $0.decode(model: C.self)
+                return (a, b, c)
             }
         }
     }
